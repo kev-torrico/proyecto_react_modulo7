@@ -39,7 +39,7 @@ export const UserPage = () => {
       showAlert("Usuario creado", "success");
       navigate("/login");
     } catch (error) {
-      const err = handleZodError<UserFormValues>(error, rawData);
+      const err = handlerZodError<UserFormValues>(error, rawData);
       showAlert(err.message, "error");
       return err;
     }
