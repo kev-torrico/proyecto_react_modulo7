@@ -1,5 +1,5 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
-import { LoginPage, NotFoundPage } from "../pages/public";
+import { LoginPage, NotFoundPage, UserPage } from "../pages/public";
 
 export const AppRouter = () => {
   return (
@@ -7,6 +7,7 @@ export const AppRouter = () => {
       <Routes>
         <Route path="/" element={<Navigate to="./login" />}></Route>
         <Route path="/login" element={<LoginPage />}></Route>
+        <Route path="/userRegister" element={<UserPage />}></Route>
         <Route path="*" element={<NotFoundPage />}></Route>
       </Routes>
     </BrowserRouter>

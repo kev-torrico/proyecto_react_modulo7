@@ -1,5 +1,4 @@
 import {
-  Alert,
   Box,
   Button,
   CircularProgress,
@@ -8,47 +7,46 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { useActionState } from "react";
-import { schemaLogin, type LoginFormValues } from "../../models";
 import type { ActionState } from "../../interfaces";
+import { schemaUser, type UserFormValues } from "../../models";
 import { createInitialState, handlerZodError } from "../../helpers";
-import { useAlert, useAuth, useAxios } from "../../hooks";
+import { useAlert, useAxios } from "../../hooks";
 import { Link, useNavigate } from "react-router-dom";
+import { useActionState } from "react";
 
-export type LoginActionState = ActionState<LoginFormValues>;
-const initialState = createInitialState<LoginFormValues>();
-
-export const LoginPage = () => {
+type UserActionState = ActionState<UserFormValues>;
+const initialState = createInitialState<UserFormValues>();
+export const UserPage = () => {
   const axios = useAxios();
-  const { login } = useAuth();
   const { showAlert } = useAlert();
   const navigate = useNavigate();
 
-  const loginApi = async (
-    _: LoginActionState | undefined,
+  const createUserApi = async (
+    _: UserActionState | undefined,
     formData: FormData
   ) => {
-    const rawData: LoginFormValues = {
+    const rawData: UserFormValues = {
       username: formData.get("username") as string,
       password: formData.get("password") as string,
+      confirmPassword: formData.get("confirmPassword") as string,
     };
     try {
-      schemaLogin.parse(rawData);
-      const response = await axios.post("/login", rawData);
-      if (!response?.data?.token) throw new Error("No existe el token");
-      console.log("response", response);
-      login(response.data.token, { username: rawData.username });
-      navigate("/perfil");
+      schemaUser.parse(rawData);
+      await axios.post("/users", {
+        username: rawData.username,
+        password: rawData.password,
+      });
+      showAlert("Usuario creado", "success");
+      navigate("/login");
     } catch (error) {
-      const err = handlerZodError<LoginFormValues>(error, rawData);
+      const err = handleZodError<UserFormValues>(error, rawData);
       showAlert(err.message, "error");
-
       return err;
     }
   };
 
   const [state, submitAction, isPending] = useActionState(
-    loginApi,
+    createUserApi,
     initialState
   );
 
@@ -74,16 +72,8 @@ export const LoginPage = () => {
       >
         <Paper elevation={3} sx={{ padding: 4 }}>
           <Typography component={"h1"} variant="h4" gutterBottom>
-            LOGIN
+            Nuevo Usuario
           </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-            Proyecto Diplomado con React 19
-          </Typography>
-          {/* ALERTA*/}
-
-          {Object.keys(state?.errors ?? {}).length !== 0 && (
-            <Alert severity="error">{state?.message}</Alert>
-          )}
 
           <Box action={submitAction} component={"form"} sx={{ width: "100%" }}>
             <TextField
@@ -112,6 +102,18 @@ export const LoginPage = () => {
               error={!!state?.errors?.password}
               helperText={state?.errors?.password}
             />
+            <TextField
+              name="confirmPassword"
+              margin="normal"
+              required
+              fullWidth
+              label="Repetir password"
+              type="password"
+              disabled={isPending}
+              defaultValue={state?.formData?.confirmPassword}
+              error={!!state?.errors?.confirmPassword}
+              helperText={state?.errors?.confirmPassword}
+            />
             <Button
               type="submit"
               fullWidth
@@ -124,9 +126,9 @@ export const LoginPage = () => {
                 ) : null
               }
             >
-              {isPending ? "Cargando..." : "Login"}
+              {isPending ? "Cargando..." : "Registrar"}
             </Button>
-            <Link to={"/userRegister"}>Registrar nuevo usario</Link>
+            <Link to="/login">Ir a login</Link>
           </Box>
         </Paper>
       </Box>
