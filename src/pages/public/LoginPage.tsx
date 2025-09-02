@@ -53,9 +53,25 @@ export const LoginPage = () => {
   );
 
   return (
-    <Container component={"main"} maxWidth={"xs"}>
-      <Box>
-        <Paper elevation={3} sx={{ padding: 4, width: "100%" }}>
+    <Container
+      maxWidth={false}
+      sx={{
+        width: "100%",
+        display: "flex",
+        justifyContent: "center",
+      }}
+    >
+      <Box
+        sx={{
+          maxWidth: "sm",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          textAlign: "center",
+          height: "100vh",
+        }}
+      >
+        <Paper elevation={3} sx={{ padding: 4 }}>
           <Typography component={"h1"} variant="h4" gutterBottom>
             LOGIN
           </Typography>
