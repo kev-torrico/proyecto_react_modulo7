@@ -1,4 +1,5 @@
 import {
+  Alert,
   Box,
   Button,
   CircularProgress,
@@ -10,7 +11,7 @@ import {
 import { useActionState } from "react";
 import { schemaLogin, type LoginFormValues } from "../../models";
 import type { ActionState } from "../../interfaces";
-import { createInitialStaste } from "../../helpers";
+import { createInitialStaste, handlerZodError } from "../../helpers";
 
 export type LoginActionState = ActionState<LoginFormValues>;
 const initialState = createInitialStaste<LoginFormValues>();
@@ -27,7 +28,8 @@ export const LoginPage = () => {
     try {
       schemaLogin.parse(rawData);
     } catch (error) {
-      console.group(error);
+      const err = handlerZodError<LoginFormValues>(error, rawData);
+      return err;
     }
   };
 
@@ -47,6 +49,11 @@ export const LoginPage = () => {
             Proyecto Diplomado con React 19
           </Typography>
           {/* ALERTA*/}
+
+          {Object.keys(state?.errors ?? {}).length !== 0 && (
+            <Alert severity="error">{state?.message}</Alert>
+          )}
+
           <Box action={submitAction} component={"form"} sx={{ width: "100%" }}>
             <TextField
               name="username"
@@ -58,6 +65,9 @@ export const LoginPage = () => {
               autoFocus
               type="text"
               disabled={isPending}
+              defaultValue={state?.formData?.username}
+              error={!!state?.errors?.username}
+              helperText={state?.errors?.username}
             />
             <TextField
               name="password"
@@ -67,6 +77,9 @@ export const LoginPage = () => {
               label="Password"
               type="password"
               disabled={isPending}
+              defaultValue={state?.formData?.password}
+              error={!!state?.errors?.password}
+              helperText={state?.errors?.password}
             />
             <Button
               type="submit"
