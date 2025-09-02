@@ -11,12 +11,19 @@ import {
 import { useActionState } from "react";
 import { schemaLogin, type LoginFormValues } from "../../models";
 import type { ActionState } from "../../interfaces";
-import { createInitialStaste, handlerZodError } from "../../helpers";
+import { createInitialState, handlerZodError } from "../../helpers";
+import { useAlert, useAuth, useAxios } from "../../hooks";
+import { useNavigate } from "react-router-dom";
 
 export type LoginActionState = ActionState<LoginFormValues>;
-const initialState = createInitialStaste<LoginFormValues>();
+const initialState = createInitialState<LoginFormValues>();
 
 export const LoginPage = () => {
+  const axios = useAxios();
+  const { login } = useAuth();
+  const { showAlert } = useAlert();
+  const navigate = useNavigate();
+
   const loginApi = async (
     _: LoginActionState | undefined,
     formData: FormData
@@ -27,8 +34,15 @@ export const LoginPage = () => {
     };
     try {
       schemaLogin.parse(rawData);
+      const response = await axios.post("/login", rawData);
+      if (!response?.data?.token) throw new Error("No existe el token");
+      console.log("response", response);
+      login(response.data.token, { username: rawData.username });
+      navigate("/perfil");
     } catch (error) {
       const err = handlerZodError<LoginFormValues>(error, rawData);
+      showAlert(err.message, "error");
+
       return err;
     }
   };
@@ -85,7 +99,7 @@ export const LoginPage = () => {
               type="submit"
               fullWidth
               variant="contained"
-              sx={{ mt: 3, mb: 2, heigh: 48 }}
+              sx={{ mt: 3, mb: 2, height: 48 }}
               disabled={isPending}
               startIcon={
                 isPending ? (

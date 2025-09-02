@@ -2,8 +2,9 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import App from "./App.tsx";
-import { AppRouter } from "./rotues/AppRouter.tsx";
+import { AppRouter } from "./routes/AppRouter.tsx";
 import { createTheme, ThemeProvider } from "@mui/material";
+import { AlertProvider, AuthProvider } from "./contexts/index.ts";
 
 const theme = createTheme({
   palette: {
@@ -22,8 +23,12 @@ const theme = createTheme({
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ThemeProvider theme={theme}>
-      <AppRouter />
-      <App />
+      <AuthProvider>
+        <AlertProvider>
+          <AppRouter />
+          <App />
+        </AlertProvider>
+      </AuthProvider>
     </ThemeProvider>
   </StrictMode>
 );

@@ -2,26 +2,30 @@ import z from "zod";
 import type { ActionState } from "../interfaces";
 import { errorHelper } from "./error.helper";
 
-export const createInitialStaste = <T>(): ActionState<T> => {
+export const createInitialState = <T>(): ActionState<T> => {
   return {
     errors: {},
     message: "",
   };
 };
 
-export const handlerZodError = <T>(error: unknown, rawData: Partial<T>) => {
+export const handlerZodError = <T>(
+  error: unknown,
+  rawData: Partial<T>
+): ActionState<T> => {
   if (error instanceof z.ZodError) {
-    const fieldError: Partial<Record<keyof T, string>> = {};
+    const fieldErros: Partial<Record<keyof T, string>> = {};
     error.issues.forEach((issue) => {
       const field = issue.path[0] as keyof T;
-      fieldError[field] = issue.message;
+      fieldErros[field] = issue.message;
     });
     return {
-      errors: fieldError,
-      message: "Por favor corrige los errores en el formulario",
+      errors: fieldErros,
+      message: "Por favor corrige los errores en el formulaario",
       formData: rawData,
     };
   }
+
   return {
     errors: {},
     message: errorHelper(error),
