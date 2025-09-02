@@ -4,10 +4,14 @@ import {
   Button,
   CircularProgress,
   Container,
+  IconButton,
+  InputAdornment,
   Paper,
   TextField,
   Typography,
 } from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material"; // <- íconos ojo
+import { useState } from "react";
 import { useActionState } from "react";
 import { schemaLogin, type LoginFormValues } from "../../models";
 import type { ActionState } from "../../interfaces";
@@ -24,6 +28,13 @@ export const LoginPage = () => {
   const { showAlert } = useAlert();
   const navigate = useNavigate();
 
+  // Estado para mostrar/ocultar la contraseña
+  const [showPassword, setShowPassword] = useState(false);
+
+  const handleClickShowPassword = () => {
+    setShowPassword((prev) => !prev);
+  };
+
   const loginApi = async (
     _: LoginActionState | undefined,
     formData: FormData
@@ -36,13 +47,11 @@ export const LoginPage = () => {
       schemaLogin.parse(rawData);
       const response = await axios.post("/login", rawData);
       if (!response?.data?.token) throw new Error("No existe el token");
-      console.log("response", response);
       login(response.data.token, { username: rawData.username });
       navigate("/perfil");
     } catch (error) {
       const err = handlerZodError<LoginFormValues>(error, rawData);
       showAlert(err.message, "error");
-
       return err;
     }
   };
@@ -79,7 +88,6 @@ export const LoginPage = () => {
           <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
             Proyecto Diplomado con React 19
           </Typography>
-          {/* ALERTA*/}
 
           {Object.keys(state?.errors ?? {}).length !== 0 && (
             <Alert severity="error">{state?.message}</Alert>
@@ -106,11 +114,20 @@ export const LoginPage = () => {
               required
               fullWidth
               label="Password"
-              type="password"
+              type={showPassword ? "text" : "password"} // <- alternar tipo
               disabled={isPending}
               defaultValue={state?.formData?.password}
               error={!!state?.errors?.password}
               helperText={state?.errors?.password}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton onClick={handleClickShowPassword} edge="end">
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
             />
             <Button
               type="submit"
@@ -126,7 +143,7 @@ export const LoginPage = () => {
             >
               {isPending ? "Cargando..." : "Login"}
             </Button>
-            <Link to={"/userRegister"}>Registrar nuevo usario</Link>
+            <Link to={"/userRegister"}>Registrar nuevo usuario</Link>
           </Box>
         </Paper>
       </Box>

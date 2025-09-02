@@ -3,6 +3,7 @@ import { useAuth } from "../../hooks";
 import {
   Person as PersonIcon,
   Assignment as TaskIcon,
+  People as UsersIcon, // <- ícono de usuarios
 } from "@mui/icons-material";
 import { Header } from "./Header";
 import type { MenuType } from "./types";
@@ -19,6 +20,7 @@ export const Layout = ({ children }: Props) => {
   const menuOptions: MenuType[] = [
     { text: "Mi Perfil", icon: <PersonIcon />, path: "/perfil" },
     { text: "Mis Tareas", icon: <TaskIcon />, path: "/tasks" },
+    { text: "Usuarios", icon: <UsersIcon />, path: "/users" },
   ];
 
   return (
